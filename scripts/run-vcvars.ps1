@@ -19,8 +19,13 @@ if (-not (Test-Path -LiteralPath $vcvars)) {
     exit 1
 }
 
+if ($args.Length -eq 0) {
+    Write-Error "Uso: scripts/run-vcvars.ps1 <comando> [args...]"
+    exit 1
+}
+
 $quotedArgs = $args | ForEach-Object { '"' + ($_ -replace '"', '\"') + '"' }
-$command = 'call "' + $vcvars + '" && cargo ' + ($quotedArgs -join ' ')
+$command = 'call "' + $vcvars + '" && ' + ($quotedArgs -join ' ')
 
 cmd.exe /d /s /c $command
 exit $LASTEXITCODE
