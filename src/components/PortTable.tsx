@@ -64,11 +64,21 @@ export function PortTable({
                   <ProcessTypeBadge processType={processType} />
                 </td>
                 <td className="px-4 py-3 text-neutral-200">
-                  <span className="inline-flex items-center gap-2">
+                  <span className="flex items-start gap-2">
                     <span className={processType.colorClass}>
                       <ProcessIcon name={processType.icon} />
                     </span>
-                    {port.process_name}
+                    <span className="min-w-0">
+                      <span className="block font-medium text-neutral-100">
+                        {port.process_name || "Desconocido"}
+                      </span>
+                      <span
+                        className="block max-w-[360px] truncate font-mono text-xs text-neutral-500"
+                        title={port.process_command || `PID ${port.pid}`}
+                      >
+                        {port.process_command || `PID ${port.pid}`}
+                      </span>
+                    </span>
                   </span>
                 </td>
                 <td className="px-4 py-3 font-mono text-neutral-500">{port.pid}</td>

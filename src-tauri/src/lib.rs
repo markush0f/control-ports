@@ -124,13 +124,25 @@ fn is_protected_process_name(process_name: &str) -> bool {
 }
 
 fn get_process_infos() -> HashMap<String, ProcessInfo> {
+    let mut process_infos = get_process_infos_from_tasklist();
     let powershell_infos = get_process_infos_from_powershell();
 
-    if !powershell_infos.is_empty() {
-        return powershell_infos;
+    for (pid, powershell_info) in powershell_infos {
+        process_infos
+            .entry(pid)
+            .and_modify(|process_info| {
+                if !powershell_info.name.is_empty() {
+                    process_info.name = powershell_info.name.clone();
+                }
+
+                if !powershell_info.command.is_empty() {
+                    process_info.command = powershell_info.command.clone();
+                }
+            })
+            .or_insert(powershell_info);
     }
 
-    get_process_infos_from_tasklist()
+    process_infos
 }
 
 fn get_process_infos_from_powershell() -> HashMap<String, ProcessInfo> {
@@ -282,11 +294,36 @@ fn parse_netstat_line(
 }
 
 fn process_name_or_unknown(process_info: &ProcessInfo) -> String {
-    if process_info.name.is_empty() {
-        "Desconocido".to_string()
-    } else {
+    if !process_info.name.is_empty() {
         process_info.name.clone()
+    } else if let Some(command_name) = extract_process_name_from_command(&process_info.command) {
+        command_name
+    } else {
+        "Desconocido".to_string()
     }
+}
+
+fn extract_process_name_from_command(command: &str) -> Option<String> {
+    let trimmed_command = command.trim();
+
+    if trimmed_command.is_empty() {
+        return None;
+    }
+
+    let executable = if let Some(rest) = trimmed_command.strip_prefix('"') {
+        rest.split_once('"').map(|(path, _)| path).unwrap_or(rest)
+    } else {
+        trimmed_command
+            .split_whitespace()
+            .next()
+            .unwrap_or(trimmed_command)
+    };
+
+    executable
+        .rsplit(['\\', '/'])
+        .next()
+        .filter(|name| !name.is_empty())
+        .map(ToString::to_string)
 }
 
 fn extract_port(address: &str) -> String {
