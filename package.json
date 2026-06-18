@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "api": "powershell -ExecutionPolicy Bypass -File scripts/cargo-vcvars.ps1 run -p control-ports-api --manifest-path src-tauri/Cargo.toml",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri"
