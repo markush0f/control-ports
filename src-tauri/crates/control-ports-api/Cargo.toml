@@ -1,0 +1,11 @@
+[package]
+name = "control-ports-api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.7"
+control-ports-core = { path = "../control-ports-core" }
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
